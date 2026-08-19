@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: mediterranean-trip-navigator
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: .
+

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#075e54" />
+  <title>Mediterranean Trip Navigator</title>
+  <style>
+    :root { color-scheme: light; --ink:#15312d; --muted:#647571; --sea:#075e54; --sea-dark:#044840; --sand:#fff8eb; --line:#d9e4df; --card:#fff; --gold:#f5b942; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:320px; background:linear-gradient(155deg,#edf8f5 0,#fff9ed 62%,#f6eee1 100%); color:var(--ink); font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; min-height:100vh; }
+    main { max-width:550px; margin:auto; padding:24px 16px 38px; }
+    header { text-align:center; margin:5px 0 27px; }
+    .eyebrow { color:var(--sea); font-size:.8rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { font-size:clamp(1.7rem,7vw,2.25rem); line-height:1.1; margin:.35rem 0 .3rem; letter-spacing:-.045em; }
+    .subhead { margin:0; color:var(--muted); font-weight:650; }
+    .panel { background:rgba(255,255,255,.93); border:1px solid rgba(255,255,255,.8); box-shadow:0 15px 45px rgba(17,67,58,.11); border-radius:22px; padding:18px; }
+    label { display:block; font-size:.84rem; font-weight:800; margin:0 0 7px; }
+    .control { position:relative; margin-bottom:17px; }
+    .label-row { display:flex; align-items:center; justify-content:space-between; margin:0 0 7px; }
+    .label-row label { margin:0; }
+    .list-toggle { width:29px; height:29px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--sea); font-size:1rem; font-weight:800; cursor:pointer; }
+    .list-toggle[aria-pressed="true"] { background:var(--sea); color:#fff; border-color:var(--sea); }
+    select,input { width:100%; min-height:52px; border:1.5px solid var(--line); background:#fff; border-radius:13px; color:var(--ink); padding:0 14px; font:inherit; outline:none; }
+    select:focus,input:focus { border-color:var(--sea); box-shadow:0 0 0 3px rgba(7,94,84,.13); }
+    .combo-shell { position:relative; }
+    .combo-shell input { padding-right:88px; }
+    .combo-clear { position:absolute; z-index:1; right:47px; top:5px; width:36px; height:42px; border:0; background:#fff; color:#687976; font-size:1.35rem; line-height:1; cursor:pointer; }
+    .combo-clear:hover,.combo-clear:focus { color:#111; background:#f3f7f5; outline:none; }
+    .combo-arrow { position:absolute; z-index:1; right:5px; top:5px; width:42px; height:42px; border:0; border-left:1px solid var(--line); border-radius:0 9px 9px 0; background:#fff; color:#111; font-size:1rem; line-height:1; cursor:pointer; }
+    .combo-arrow:hover,.combo-arrow:focus { background:#eef8f5; outline:none; }
+    .select-shell { position:relative; }
+    .select-shell select { appearance:none; -webkit-appearance:none; padding-right:50px; }
+    .select-arrow { pointer-events:none; position:absolute; right:18px; top:50%; transform:translateY(-50%); color:#111; font-size:1rem; }
+    .hint { color:var(--muted); font-size:.78rem; margin:6px 2px 0; }
+    .hint-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .hint-row .hint { margin:6px 2px 0; }
+    .here { min-width:50px; min-height:30px; margin-top:5px; border:0; border-radius:8px; background:#e5f4ef; color:var(--sea); font-weight:800; cursor:pointer; }
+    .suggestions { position:absolute; z-index:2; top:calc(100% + 4px); left:0; right:0; max-height:205px; overflow:auto; background:#eaf6ff; border:1px solid #b8d9ee; border-radius:12px; box-shadow:0 12px 25px rgba(16,47,42,.14); }
+    .suggestions[hidden] { display:none; }
+    .option { padding:11px 13px; cursor:pointer; border-bottom:1px solid #edf1ef; }
+    .option:last-child { border:0; }
+    .option:hover,.option:focus { background:#d5edfc; outline:0; }
+    .option strong,.option span { display:block; }
+    .option span { font-size:.78rem; color:var(--muted); }
+    .route-divider { display:flex; align-items:center; gap:10px; margin:-2px 0 15px; }
+    .route-divider:before,.route-divider:after { content:""; height:1px; background:var(--line); flex:1; }
+    .swap { min-height:37px; padding:0 14px; color:var(--sea); border:1px solid #acd3cc; border-radius:99px; background:#f2fbf8; font-weight:800; cursor:pointer; }
+    .place-card { margin:3px 0 18px; padding:14px 15px; border-radius:14px; background:var(--sand); border:1px solid #f3dfb2; }
+    .place-card[hidden] { display:none; }
+    .place-card strong { display:block; font-size:1.03rem; }
+    .place-card span { color:#746042; font-size:.9rem; }
+    .go { width:100%; min-height:62px; border:0; border-radius:15px; color:#fff; background:var(--sea); font:800 1.05rem/1 system-ui,sans-serif; letter-spacing:.04em; cursor:pointer; box-shadow:0 9px 20px rgba(7,94,84,.25); }
+    .go:hover { background:var(--sea-dark); } .go:active { transform:translateY(1px); }
+    .status { min-height:1.25em; margin:11px 2px 0; font-size:.84rem; color:var(--muted); text-align:center; }
+    footer { color:var(--muted); font-size:.76rem; padding:18px 5px 0; text-align:center; }
+    .trip-tiles { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; margin:17px 0 22px; }
+    .trip-tile { min-width:0; min-height:64px; padding:7px 2px 6px; border:1px solid #c8ddd7; border-radius:11px; background:rgba(255,255,255,.9); color:var(--ink); cursor:pointer; box-shadow:0 4px 10px rgba(20,58,52,.08); }
+    .trip-tile:hover,.trip-tile:focus { background:#eaf6ff; border-color:#8fc4e3; outline:none; }
+    .trip-icon { display:block; font-size:1.2rem; line-height:1.15; margin-bottom:4px; }
+    .trip-name { display:block; overflow:hidden; font-size:clamp(.54rem,2.25vw,.7rem); font-weight:850; line-height:1.05; text-overflow:ellipsis; }
+    #originControl { scroll-margin-top:16px; }
+    @media (min-width:700px) { main { padding-top:48px; } .panel { padding:25px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header><div class="eyebrow">Travel light · navigate simply</div><h1>Mediterranean Trip Navigator</h1><p class="subhead">September 2026</p></header>
+  <nav class="trip-tiles" aria-label="Quick date selection">
+    <button class="trip-tile" type="button" data-day="0"><span class="trip-icon">🏛️</span><span class="trip-name">Rome</span></button>
+    <button class="trip-tile" type="button" data-day="1"><span class="trip-icon">🌊</span><span class="trip-name">Amalfi</span></button>
+    <button class="trip-tile" type="button" data-day="3"><span class="trip-icon">⛪</span><span class="trip-name">Santorini</span></button>
+    <button class="trip-tile" type="button" data-day="4"><span class="trip-icon">🏺</span><span class="trip-name">Ephesus</span></button>
+    <button class="trip-tile" type="button" data-day="5"><span class="trip-icon">🌬️</span><span class="trip-name">Mykonos</span></button>
+    <button class="trip-tile" type="button" data-day="6"><span class="trip-icon">🌋</span><span class="trip-name">Naples</span></button>
+  </nav>
+  <section class="panel" aria-label="Route planner">
+    <div class="control"><label for="day">Date / Location</label><select id="day" aria-label="Date and location"></select></div>
+    <div class="control" id="originControl"><div class="label-row"><label for="origin">Origin</label><button class="list-toggle" id="originAll" type="button" aria-label="Show all origin locations" aria-pressed="false">☰</button></div><div class="combo-shell"><input id="origin" type="text" role="combobox" autocomplete="off" aria-autocomplete="list" aria-expanded="false" placeholder="Search all saved locations" /><button class="combo-clear" id="originClear" type="button" aria-label="Clear origin">×</button><button class="combo-arrow" id="originArrow" type="button" aria-label="Open origin locations">▼</button><div class="suggestions" id="originList" role="listbox" hidden></div></div><div class="hint-row"><p class="hint">📍 Current Location or any saved place</p><button class="here" id="here" type="button">Here</button></div></div>
+    <div class="route-divider"><button class="swap" id="swap" type="button" aria-label="Swap origin and destination">⇅&nbsp; Swap</button></div>
+    <div class="control"><div class="label-row"><label for="destination">Destination</label><button class="list-toggle" id="destinationAll" type="button" aria-label="Show all destination locations" aria-pressed="false">☰</button></div><div class="combo-shell"><input id="destination" type="text" role="combobox" autocomplete="off" aria-autocomplete="list" aria-expanded="false" placeholder="Search places for this date" /><button class="combo-clear" id="destinationClear" type="button" aria-label="Clear destination">×</button><button class="combo-arrow" id="destinationArrow" type="button" aria-label="Open destination locations">▼</button><div class="suggestions" id="destinationList" role="listbox" hidden></div></div><p class="hint" id="destinationHint">Places for selected date</p></div>
+    <div class="control"><label for="transport">Travel mode</label><div class="select-shell"><select id="transport" aria-label="Travel mode"><option value="">Best (Google Maps chooses)</option><option value="walking" selected>Walking</option><option value="driving">Driving</option><option value="transit">Transit</option><option value="bicycling">Cycling</option></select><span class="select-arrow" aria-hidden="true">▼</span></div></div>
+    <div class="place-card" id="placeCard" hidden><strong id="placeName"></strong><span id="placeDesc"></span></div>
+    <button class="go" id="go" type="button">GO THERE</button><div class="status" id="status" aria-live="polite"></div>
+  </section>
+  <footer>Directions open in Google Maps · Walking mode by default</footer>
+</main>
+<script>
+const days=[
+ ['2026-09-11','Sep 11, 2026 — Rome, Italy','rome'],['2026-09-12','Sep 12, 2026 — Amalfi Coast, Italy','rome12'],['2026-09-13','Sep 13, 2026 — Rome / Civitavecchia, Italy','rome'],['2026-09-15','Sep 15, 2026 — Santorini, Greece','santorini'],['2026-09-16','Sep 16, 2026 — Ephesus / Kusadasi, Turkey','ephesus'],['2026-09-17','Sep 17, 2026 — Mykonos, Greece','mykonos'],['2026-09-19','Sep 19, 2026 — Naples / Pompeii, Italy','naples'],['2026-09-20','Sep 20, 2026 — Rome, Italy','rome'],['2026-09-21','Sep 21, 2026 — Rome / FCO Airport, Italy','rome']];
+const data=[]; let uid=0; const add=(group,city,rows)=>rows.forEach(([name,zh,query])=>data.push({id:++uid,group,city,name,zh,query:query||name+', '+city}));
+add('rome','Rome', [['Rome Fiumicino Airport (FCO)','羅馬菲烏米奇諾機場'],['Leonardo Express / FCO Railway Station','機場火車站'],['Roma Termini','羅馬中央火車站'],['Hotel Sonya','羅馬住宿酒店','Hotel Sonya Rome'],["St. Peter's Basilica",'聖伯多祿大殿'],["St. Peter's Square",'聖伯多祿廣場'],['Vatican City','梵蒂岡'],['Vatican Museums','梵蒂岡博物館'],['Colosseum','羅馬鬥獸場'],['Roman Forum','古羅馬廣場'],['Trevi Fountain','許願池'],['Pantheon','萬神殿'],['Piazza Navona','納沃納廣場'],['Spanish Steps','西班牙階梯'],['Civitavecchia Cruise Port','奇維塔韋基亞郵輪港']]);
+add('rome12','Rome / Amalfi Coast', [['Piazza del Popolo, Rome','羅馬人民廣場'],['Port of Civitavecchia','奇維塔韋基亞港','Port of Civitavecchia, Italy'],['Piazza Duomo, Amalfi','阿瑪菲主教座堂廣場','Piazza Duomo, 84011 Amalfi SA, Italy'],['Duomo di Amalfi','阿瑪菲主教座堂','Duomo di Amalfi, 84011 Amalfi SA, Italy'],['Piazza dei Mulini, Positano','波西塔諾磨坊廣場','Piazza dei Mulini, 84017 Positano SA, Italy'],['Via dei Mulini, Positano','波西塔諾磨坊街','Via dei Mulini, 84017 Positano SA, Italy'],['Chiesa di Santa Maria Assunta, Positano','波西塔諾聖母升天教堂','Chiesa di Santa Maria Assunta, 84017 Positano SA, Italy'],['Spiaggia Grande, Positano','波西塔諾大海灘','Spiaggia Grande, 84017 Positano SA, Italy']]);
+add('santorini','Santorini', [['Athinios Port / New Port','聖托里尼新港'],['Old Port of Fira','費拉舊港'],['Fira','費拉主城'],['Fira Cable Car','費拉纜車'],['Fira Caldera Viewpoints','費拉火山口觀景點'],['Oia','伊亞小鎮'],['Three Blue Domes','三藍頂教堂','Three Bells of Fira Santorini'],['Oia Castle / Sunset Viewpoint','伊亞城堡觀景台'],['Oia Cave Houses','伊亞洞穴屋區'],['Oia Caldera Viewpoints','伊亞火山口觀景點'],['Ammoudi Bay','阿莫迪灣']]);
+add('ephesus','Ephesus / Kusadasi', [['Kusadasi Cruise Port','庫薩達斯郵輪碼頭'],['House of the Virgin Mary','聖母瑪利亞故居'],['Fountain of Our Lady','聖母泉','Fountain of Virgin Mary Ephesus'],['Wishing Wall','許願牆','Wishing Wall House of Virgin Mary Ephesus'],['Ancient City of Ephesus','以弗所古城'],['Library of Celsus','塞爾蘇斯圖書館'],['Great Theatre of Ephesus','以弗所大劇場'],['Odeon of Ephesus','以弗所小劇場'],['Scholastica Baths','古羅馬浴場'],['Ephesus Marble Street','以弗所大理石街'],['Church of Mary','聖母教堂','Church of Mary Ephesus'],['Basilica of St. John','聖約翰大殿'],['Tomb of St. John','聖約翰墓'],['Isa Bey Mosque','伊薩貝清真寺'],['Kusadasi Town Center','庫薩達斯市中心'],['Kaleici / Kusadasi Old Town','庫薩達斯舊城'],['Kusadasi Bazaar','庫薩達斯市集']]);
+add('mykonos','Mykonos', [['Mykonos Town / Chora','米科諾斯主城'],['Mykonos Old Town','米科諾斯舊城'],['Mykonos Old Port','米科諾斯舊港'],['Mykonos Windmills','米科諾斯風車'],['Little Venice','小威尼斯'],['Matogianni Street','馬托吉安尼街'],['Church of Panagia Paraportiani','帕拉波爾蒂阿尼教堂']]);
+add('naples','Naples / Pompeii', [['Naples Cruise Port / Stazione Marittima','拿坡里郵輪碼頭'],['Piazza Municipio','市政廳廣場'],['Castel Nuovo','新堡'],['Galleria Umberto I','翁貝托一世拱廊'],['Teatro di San Carlo','聖卡洛歌劇院'],['Piazza del Plebiscito','平民表決廣場'],['Royal Palace of Naples','拿坡里王宮'],['Naples Historic Center','拿坡里歷史中心'],['Spaccanapoli','拿坡里老城主街'],['Piazza del Gesù Nuovo','新耶穌廣場'],['San Gregorio Armeno','聖格雷戈里奧阿爾梅諾街'],['Duomo di Napoli / San Gennaro','拿坡里主教座堂'],['Maradona Mural','馬拉當拿壁畫','Maradona Mural Naples'],['Maradona Statue','馬拉當拿雕像','Maradona Statue Naples'],['Pompeii Archaeological Park','龐貝考古公園'],['Pompeii Forum','龐貝古羅馬廣場'],['Temple of Apollo','阿波羅神殿','Temple of Apollo Pompeii'],['Basilica of Pompeii','龐貝巴西利卡'],['Forum Baths','廣場浴場','Forum Baths Pompeii'],['Stabian Baths','斯塔比亞浴場'],['Lupanar of Pompeii','龐貝著名古羅馬妓院遺址'],["Via dell'Abbondanza",'阿邦丹薩大道'],['House of the Faun','牧神之家'],['House of the Tragic Poet','悲劇詩人之家'],['House of the Vettii','維蒂之家'],['Large Theatre','龐貝大劇場','Large Theatre Pompeii'],['Small Theatre / Odeon','龐貝小劇場','Odeon Pompeii'],['Amphitheatre of Pompeii','龐貝圓形競技場'],['Garden of the Fugitives','逃難者花園／石膏像'],['Pompeii Main Entrance','龐貝主要入口','Porta Marina Pompeii']]);
+const day=document.querySelector('#day'), origin=document.querySelector('#origin'), destination=document.querySelector('#destination'), status=document.querySelector('#status'); let chosenOrigin={current:true,name:'📍 Current Location'}, chosenDestination=null, showAllOrigins=false, showAllDestinations=false;
+days.forEach((d,i)=>day.add(new Option(d[1],i))); function currentGroup(){return days[day.value][2]};
+function render(input,list,items,onPick){ const q=input.value.trim().toLowerCase(); const matches=items.filter(x=>(x.name+x.zh+x.city).toLowerCase().includes(q)); list.innerHTML=''; matches.forEach(x=>{const el=document.createElement('div');el.className='option';el.tabIndex=0;el.innerHTML='<strong>'+x.name+'</strong><span>'+x.zh+' · '+x.city+'</span>';el.onclick=()=>onPick(x);el.onkeydown=e=>{if(e.key==='Enter')onPick(x)};list.append(el)}); list.hidden=!matches.length; input.setAttribute('aria-expanded',String(!list.hidden)); }
+function chooseOrigin(x){chosenOrigin=x;origin.value=x.name;document.querySelector('#originList').hidden=true} function chooseDestination(x){chosenDestination=x;destination.value=x.name;document.querySelector('#destinationList').hidden=true;document.querySelector('#placeName').textContent=x.name;document.querySelector('#placeDesc').textContent=x.zh;document.querySelector('#placeCard').hidden=false}
+function originItems(){const saved=showAllOrigins ? data : data.filter(x=>x.group===currentGroup());return [{current:true,name:'📍 Current Location',zh:'使用手機目前位置',city:'GPS'},...saved]};
+origin.value=chosenOrigin.name; origin.addEventListener('input',()=>{chosenOrigin=null; render(origin,document.querySelector('#originList'),originItems(),chooseOrigin)}); origin.addEventListener('focus',()=>render(origin,document.querySelector('#originList'),originItems(),chooseOrigin));
+function destItems(){return showAllDestinations ? data : data.filter(x=>x.group===currentGroup())}; destination.addEventListener('input',()=>{chosenDestination=null; render(destination,document.querySelector('#destinationList'),destItems(),chooseDestination)}); destination.addEventListener('focus',()=>render(destination,document.querySelector('#destinationList'),destItems(),chooseDestination));
+document.querySelector('#originAll').onclick=()=>{showAllOrigins=!showAllOrigins;const button=document.querySelector('#originAll');button.setAttribute('aria-pressed',showAllOrigins);origin.blur();render(origin,document.querySelector('#originList'),originItems(),chooseOrigin)};
+document.querySelector('#destinationAll').onclick=()=>{showAllDestinations=!showAllDestinations;const button=document.querySelector('#destinationAll');button.setAttribute('aria-pressed',showAllDestinations);document.querySelector('#destinationHint').textContent=showAllDestinations?'All saved locations':'Places for '+days[day.value][1].split(' — ')[1];destination.blur();render(destination,document.querySelector('#destinationList'),destItems(),chooseDestination)};
+const originArrow=document.querySelector('#originArrow'), destinationArrow=document.querySelector('#destinationArrow');
+[originArrow,destinationArrow].forEach(button=>button.addEventListener('pointerdown',event=>event.preventDefault()));
+originArrow.onclick=()=>{const list=document.querySelector('#originList');chosenOrigin=null;origin.value='';origin.blur();if(!list.hidden){list.hidden=true;origin.setAttribute('aria-expanded','false');return}render(origin,list,originItems(),chooseOrigin)};
+destinationArrow.onclick=()=>{const list=document.querySelector('#destinationList');chosenDestination=null;destination.value='';document.querySelector('#placeCard').hidden=true;destination.blur();if(!list.hidden){list.hidden=true;destination.setAttribute('aria-expanded','false');return}render(destination,list,destItems(),chooseDestination)};
+const originClear=document.querySelector('#originClear'), destinationClear=document.querySelector('#destinationClear');
+[originClear,destinationClear].forEach(button=>button.addEventListener('pointerdown',event=>event.preventDefault()));
+originClear.onclick=()=>{chosenOrigin=null;origin.value='';origin.blur();document.querySelector('#originList').hidden=true;origin.setAttribute('aria-expanded','false');status.textContent='Origin cleared.'};
+destinationClear.onclick=()=>{chosenDestination=null;destination.value='';destination.blur();document.querySelector('#destinationList').hidden=true;destination.setAttribute('aria-expanded','false');document.querySelector('#placeCard').hidden=true;status.textContent='Destination cleared.'};
+document.querySelector('#here').onclick=()=>{chooseOrigin({current:true,name:'📍 Current Location',zh:'使用手機目前位置',city:'GPS'});status.textContent='Current Location selected.'};
+function resetForDate(){if(document.activeElement && document.activeElement.blur)document.activeElement.blur();chosenOrigin=null;origin.value='';chosenDestination=null;destination.value='';showAllOrigins=false;showAllDestinations=false;document.querySelector('#originAll').setAttribute('aria-pressed','false');document.querySelector('#destinationAll').setAttribute('aria-pressed','false');document.querySelector('#placeCard').hidden=true;const destinationList=document.querySelector('#destinationList');destinationList.hidden=true;destination.setAttribute('aria-expanded','false');status.textContent='Origin and destination cleared for the new date.';document.querySelector('#destinationHint').textContent='Places for '+days[day.value][1].split(' — ')[1];render(origin,document.querySelector('#originList'),originItems(),chooseOrigin);requestAnimationFrame(()=>document.querySelector('#originControl').scrollIntoView({behavior:'smooth',block:'start'}));}
+day.addEventListener('change',resetForDate);
+document.querySelectorAll('.trip-tile').forEach(tile=>tile.addEventListener('click',()=>{day.value=tile.dataset.day;resetForDate();}));
+document.querySelector('#swap').onclick=()=>{if(!chosenDestination){status.textContent='Choose a destination first, then swap.';return} const oldOrigin=chosenOrigin; chooseOrigin(chosenDestination); if(oldOrigin && !oldOrigin.current) chooseDestination(oldOrigin); else {chosenDestination=null;destination.value='';document.querySelector('#placeCard').hidden=true;} status.textContent='Origin and destination swapped.'};
+document.addEventListener('click',e=>{if(!e.target.closest('.control'))document.querySelectorAll('.suggestions').forEach(x=>x.hidden=true)});
+document.querySelector('#go').onclick=()=>{const dest=chosenDestination?chosenDestination.query:destination.value.trim(); if(!dest){status.textContent='Please enter or select a destination.'; destination.focus();return} const mode=document.querySelector('#transport').value; const open=(start)=>{let url='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(start)+'&destination='+encodeURIComponent(dest); if(mode)url+='&travelmode='+encodeURIComponent(mode); status.textContent='Opening Google Maps directions…'; window.location.assign(url);}; const typedOrigin=origin.value.trim(); if(chosenOrigin && chosenOrigin.current){if(navigator.geolocation){status.textContent='Getting current location…'; navigator.geolocation.getCurrentPosition(p=>open(p.coords.latitude+','+p.coords.longitude),()=>open('Current Location'),{enableHighAccuracy:true,timeout:7000,maximumAge:60000});}else open('Current Location')} else if(chosenOrigin)open(chosenOrigin.query); else if(typedOrigin)open(typedOrigin); else {status.textContent='Please enter or select an origin.';origin.focus();}};
+document.querySelector('#destinationHint').textContent='Places for Rome, Italy';
+</script></body></html>

@@ -8,7 +8,8 @@
   <style>
     :root { color-scheme: light; --ink:#15312d; --muted:#647571; --sea:#075e54; --sea-dark:#044840; --sand:#fff8eb; --line:#d9e4df; --card:#fff; --gold:#f5b942; }
     * { box-sizing:border-box; }
-    body { margin:0; min-width:320px; background:linear-gradient(155deg,#edf8f5 0,#fff9ed 62%,#f6eee1 100%); color:var(--ink); font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; min-height:100vh; }
+    html { font-size:130%; }
+    body { margin:0; min-width:320px; background:linear-gradient(155deg,#edf8f5 0,#fff9ed 62%,#f6eee1 100%); color:var(--ink); font:1rem/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; min-height:100vh; }
     main { max-width:550px; margin:auto; padding:24px 16px 38px; }
     header { text-align:center; margin:5px 0 27px; }
     .eyebrow { color:var(--sea); font-size:.8rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
@@ -54,11 +55,11 @@
     .go:hover { background:var(--sea-dark); } .go:active { transform:translateY(1px); }
     .status { min-height:1.25em; margin:11px 2px 0; font-size:.84rem; color:var(--muted); text-align:center; }
     footer { color:var(--muted); font-size:.76rem; padding:18px 5px 0; text-align:center; }
-    .trip-tiles { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; margin:17px 0 22px; }
-    .trip-tile { min-width:0; min-height:64px; padding:7px 2px 6px; border:1px solid #c8ddd7; border-radius:11px; background:rgba(255,255,255,.9); color:var(--ink); cursor:pointer; box-shadow:0 4px 10px rgba(20,58,52,.08); }
+    .trip-tiles { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:17px 0 22px; }
+    .trip-tile { min-width:0; min-height:92px; padding:10px 4px 8px; border:1px solid #c8ddd7; border-radius:11px; background:rgba(255,255,255,.9); color:var(--ink); cursor:pointer; box-shadow:0 4px 10px rgba(20,58,52,.08); }
     .trip-tile:hover,.trip-tile:focus { background:#eaf6ff; border-color:#8fc4e3; outline:none; }
-    .trip-icon { display:block; font-size:1.2rem; line-height:1.15; margin-bottom:4px; }
-    .trip-name { display:block; overflow:hidden; font-size:clamp(.54rem,2.25vw,.7rem); font-weight:850; line-height:1.05; text-overflow:ellipsis; }
+    .trip-icon { display:block; font-size:2.2rem; line-height:1; margin-bottom:7px; }
+    .trip-name { display:block; overflow:hidden; font-size:clamp(.65rem,3vw,.84rem); font-weight:850; line-height:1.05; text-overflow:ellipsis; }
     #originControl { scroll-margin-top:16px; }
     @media (min-width:700px) { main { padding-top:48px; } .panel { padding:25px; } }
   </style>

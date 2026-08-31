@@ -22,6 +22,10 @@
     .label-row label { margin:0; }
     .list-toggle { width:29px; height:29px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--sea); font-size:1rem; font-weight:800; cursor:pointer; }
     .list-toggle[aria-pressed="true"] { background:var(--sea); color:#fff; border-color:var(--sea); }
+    .date-label-row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 7px; }
+    .date-label-row label { margin:0; }
+    .edit-master { min-width:42px; min-height:31px; border:1px solid #acd3cc; border-radius:8px; background:#e5f4ef; color:var(--sea); font-size:.78rem; font-weight:850; cursor:pointer; }
+    .edit-master:hover,.edit-master:focus { background:#d5eee7; outline:none; box-shadow:0 0 0 3px rgba(7,94,84,.11); }
     select,input { width:100%; min-height:52px; border:1.5px solid var(--line); background:#fff; border-radius:13px; color:var(--ink); padding:0 14px; font:inherit; outline:none; }
     select:focus,input:focus { border-color:var(--sea); box-shadow:0 0 0 3px rgba(7,94,84,.13); }
     .combo-shell,.date-shell { position:relative; }
@@ -69,6 +73,17 @@
     .trip-icon { display:block; font-size:2.2rem; line-height:1; margin-bottom:7px; }
     .trip-name { display:block; overflow:hidden; font-size:clamp(.65rem,3vw,.84rem); font-weight:850; line-height:1.05; text-overflow:ellipsis; }
     #dateControl { scroll-margin-top:18px; }
+    .modal-backdrop { position:fixed; inset:0; z-index:10; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(8,38,34,.38); }
+    .modal-backdrop[hidden] { display:none; }
+    .modal { width:min(100%,620px); max-height:88vh; overflow:auto; background:#fff; border-radius:18px; border:1px solid var(--line); box-shadow:0 20px 60px rgba(5,41,36,.28); padding:18px; }
+    .modal-head { display:flex; align-items:start; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    .modal h2 { margin:0; font-size:1.1rem; line-height:1.2; }
+    .modal-close { width:35px; height:35px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink); font-size:1.25rem; line-height:1; cursor:pointer; }
+    .modal textarea { width:100%; min-height:330px; padding:12px; resize:vertical; font:0.76rem/1.35 ui-monospace,SFMono-Regular,Consolas,monospace; white-space:pre; overflow:auto; }
+    .modal-actions { display:flex; justify-content:flex-end; gap:9px; margin-top:13px; }
+    .modal-actions button { min-height:40px; padding:0 14px; border-radius:8px; border:1px solid #acd3cc; background:#fff; color:var(--sea); font-weight:850; cursor:pointer; }
+    .modal-actions .save { background:var(--sea); border-color:var(--sea); color:#fff; }
+    .modal-hint { margin:0 0 10px; color:var(--muted); font-size:.78rem; }
     @media (max-width:699px) { main { padding-bottom:210px; } }
     @media (min-width:700px) { main { padding-top:48px; } .panel { padding:25px; } }
   </style>
@@ -85,7 +100,7 @@
     <button class="trip-tile" type="button" data-day="7"><span class="trip-icon">🌋</span><span class="trip-name">Naples</span></button>
   </nav>
   <section class="panel" aria-label="Route planner">
-    <div class="control" id="dateControl"><label id="dayLabel">Date / Location</label><div class="date-shell"><button class="date-trigger" id="day" type="button" aria-labelledby="dayLabel dayDate dayLocation" aria-haspopup="listbox" aria-expanded="false"><span class="date-value"><strong id="dayDate"></strong><span id="dayLocation"></span></span><span class="date-arrow" aria-hidden="true">▼</span></button><div class="suggestions" id="dayList" role="listbox" aria-label="Date and location choices" hidden></div></div></div>
+    <div class="control" id="dateControl"><div class="date-label-row"><label id="dayLabel">Date / Location</label><button class="edit-master" id="editMaster" type="button" aria-label="Edit master location list">Edit</button></div><div class="date-shell"><button class="date-trigger" id="day" type="button" aria-labelledby="dayLabel dayDate dayLocation" aria-haspopup="listbox" aria-expanded="false"><span class="date-value"><strong id="dayDate"></strong><span id="dayLocation"></span></span><span class="date-arrow" aria-hidden="true">▼</span></button><div class="suggestions" id="dayList" role="listbox" aria-label="Date and location choices" hidden></div></div></div>
     <div class="control" id="originControl"><div class="label-row"><label for="origin">Origin</label><button class="list-toggle" id="originAll" type="button" aria-label="Show all origin locations" aria-pressed="false">☰</button></div><div class="combo-shell"><input id="origin" type="text" role="combobox" autocomplete="off" aria-autocomplete="list" aria-expanded="false" placeholder="Search all saved locations" /><button class="combo-clear" id="originClear" type="button" aria-label="Clear origin">×</button><button class="combo-arrow" id="originArrow" type="button" aria-label="Open origin locations">▼</button><div class="suggestions" id="originList" role="listbox" hidden></div></div><div class="hint-row"><p class="hint">📍 Current Location or any saved place</p><button class="here" id="here" type="button">Here</button></div></div>
     <div class="route-divider"><button class="swap" id="swap" type="button" aria-label="Swap origin and destination">⇅&nbsp; Swap</button></div>
     <div class="control"><div class="label-row"><label for="destination">Destination</label><button class="list-toggle" id="destinationAll" type="button" aria-label="Show all destination locations" aria-pressed="false">☰</button></div><div class="combo-shell"><input id="destination" type="text" role="combobox" autocomplete="off" aria-autocomplete="list" aria-expanded="false" placeholder="Search places for this date" /><button class="combo-clear" id="destinationClear" type="button" aria-label="Clear destination">×</button><button class="combo-arrow" id="destinationArrow" type="button" aria-label="Open destination locations">▼</button><div class="suggestions" id="destinationList" role="listbox" hidden></div></div><p class="hint" id="destinationHint">Places for selected date</p></div>
@@ -95,6 +110,14 @@
   </section>
   <footer>Directions open in Google Maps · Walking mode by default</footer>
 </main>
+<div class="modal-backdrop" id="masterModal" hidden>
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="masterTitle">
+    <div class="modal-head"><h2 id="masterTitle">Master Location List</h2><button class="modal-close" id="masterClose" type="button" aria-label="Close master location editor">×</button></div>
+    <p class="modal-hint">One saved place per line: group | city | name | note | Google Maps search text</p>
+    <textarea id="masterText" spellcheck="false" aria-label="Master location list"></textarea>
+    <div class="modal-actions"><button id="masterCancel" type="button">Cancel</button><button class="save" id="masterSave" type="button">Save</button></div>
+  </section>
+</div>
 <script>
 const days=[
  ['utility','Utility','Nearby services','utility'],
@@ -122,6 +145,13 @@ add('santorini','Santorini', [['Athinios Port / New Port','聖托里尼新港'],
 add('ephesus','Ephesus / Kusadasi', [['Kusadasi Cruise Port','庫薩達斯郵輪碼頭'],['House of the Virgin Mary','聖母瑪利亞故居'],['Fountain of Our Lady','聖母泉','Fountain of Virgin Mary Ephesus'],['Wishing Wall','許願牆','Wishing Wall House of Virgin Mary Ephesus'],['Ancient City of Ephesus','以弗所古城'],['Library of Celsus','塞爾蘇斯圖書館'],['Great Theatre of Ephesus','以弗所大劇場'],['Odeon of Ephesus','以弗所小劇場'],['Scholastica Baths','古羅馬浴場'],['Ephesus Marble Street','以弗所大理石街'],['Church of Mary','聖母教堂','Church of Mary Ephesus'],['Basilica of St. John','聖約翰大殿'],['Tomb of St. John','聖約翰墓'],['Isa Bey Mosque','伊薩貝清真寺'],['Kusadasi Town Center','庫薩達斯市中心'],['Kaleici / Kusadasi Old Town','庫薩達斯舊城'],['Kusadasi Bazaar','庫薩達斯市集']]);
 add('mykonos','Mykonos', [['Mykonos Town / Chora','米科諾斯主城'],['Mykonos Old Town','米科諾斯舊城'],['Mykonos Old Port','米科諾斯舊港'],['Mykonos Windmills','米科諾斯風車'],['Little Venice','小威尼斯'],['Matogianni Street','馬托吉安尼街'],['Church of Panagia Paraportiani','帕拉波爾蒂阿尼教堂']]);
 add('naples','Naples / Pompeii', [['Naples Cruise Port / Stazione Marittima','拿坡里郵輪碼頭'],['Piazza Municipio','市政廳廣場'],['Castel Nuovo','新堡'],['Galleria Umberto I','翁貝托一世拱廊'],['Teatro di San Carlo','聖卡洛歌劇院'],['Piazza del Plebiscito','平民表決廣場'],['Royal Palace of Naples','拿坡里王宮'],['Naples Historic Center','拿坡里歷史中心'],['Spaccanapoli','拿坡里老城主街'],['Piazza del Gesù Nuovo','新耶穌廣場'],['San Gregorio Armeno','聖格雷戈里奧阿爾梅諾街'],['Duomo di Napoli / San Gennaro','拿坡里主教座堂'],['Maradona Mural','馬拉當拿壁畫','Maradona Mural Naples'],['Maradona Statue','馬拉當拿雕像','Maradona Statue Naples'],['Pompeii Archaeological Park','龐貝考古公園'],['Pompeii Forum','龐貝古羅馬廣場'],['Temple of Apollo','阿波羅神殿','Temple of Apollo Pompeii'],['Basilica of Pompeii','龐貝巴西利卡'],['Forum Baths','廣場浴場','Forum Baths Pompeii'],['Stabian Baths','斯塔比亞浴場'],['Lupanar of Pompeii','龐貝著名古羅馬妓院遺址'],["Via dell'Abbondanza",'阿邦丹薩大道'],['House of the Faun','牧神之家'],['House of the Tragic Poet','悲劇詩人之家'],['House of the Vettii','維蒂之家'],['Large Theatre','龐貝大劇場','Large Theatre Pompeii'],['Small Theatre / Odeon','龐貝小劇場','Odeon Pompeii'],['Amphitheatre of Pompeii','龐貝圓形競技場'],['Garden of the Fugitives','逃難者花園／石膏像'],['Pompeii Main Entrance','龐貝主要入口','Porta Marina Pompeii']]);
+const masterStorageKey='mediterraneanTripNavigator.masterLocations.v1';
+const defaultMasterLocations=data.map(x=>({group:x.group,city:x.city,name:x.name,zh:x.zh,query:x.query}));
+function replaceMasterLocations(rows){data.length=0;uid=0;rows.forEach(row=>data.push({id:++uid,group:row.group,city:row.city,name:row.name,zh:row.zh,query:row.query||row.name+', '+row.city}))}
+function loadMasterLocations(){try{const saved=localStorage.getItem(masterStorageKey);if(saved)replaceMasterLocations(JSON.parse(saved))}catch(e){localStorage.removeItem(masterStorageKey)}}
+function serializeMasterLocations(){return data.map(x=>[x.group,x.city,x.name,x.zh,x.query].map(v=>String(v||'').replace(/\r?\n/g,' ')).join(' | ')).join('\n')}
+function parseMasterLocations(text){const rows=[];text.split(/\r?\n/).forEach((line,index)=>{const trimmed=line.trim();if(!trimmed||trimmed.toLowerCase().startsWith('group |'))return;const parts=trimmed.split('|').map(x=>x.trim());if(parts.length<4)throw new Error('Line '+(index+1)+' needs group | city | name | note | search text');const [group,city,name,zh,query]=parts;if(!group||!city||!name)throw new Error('Line '+(index+1)+' needs group, city, and name.');rows.push({group,city,name,zh:zh||'',query:query||name+', '+city})});if(!rows.length)throw new Error('Add at least one saved location.');return rows}
+loadMasterLocations();
 const day=document.querySelector('#day'), dayList=document.querySelector('#dayList'), origin=document.querySelector('#origin'), destination=document.querySelector('#destination'), status=document.querySelector('#status'); let selectedDay=1, chosenOrigin={current:true,name:'📍 Current Location'}, chosenDestination=null, showAllOrigins=false, showAllDestinations=false;
 function isUtilityMode(){return currentGroup()==='utility'};
 function currentGroup(){return days[selectedDay][3]};
@@ -148,6 +178,15 @@ const originClear=document.querySelector('#originClear'), destinationClear=docum
 originClear.onclick=()=>{chosenOrigin=null;origin.value='';origin.blur();document.querySelector('#originList').hidden=true;origin.setAttribute('aria-expanded','false');status.textContent='Origin cleared.'};
 destinationClear.onclick=()=>{chosenDestination=null;destination.value='';destination.blur();document.querySelector('#destinationList').hidden=true;destination.setAttribute('aria-expanded','false');document.querySelector('#placeCard').hidden=true;status.textContent='Destination cleared.'};
 document.querySelector('#here').onclick=()=>{chooseOrigin({current:true,name:'📍 Current Location',zh:'使用手機目前位置',city:'GPS'});status.textContent='Current Location selected.'};
+const masterModal=document.querySelector('#masterModal'), masterText=document.querySelector('#masterText');
+function closeMasterEditor(){masterModal.hidden=true}
+function openMasterEditor(){masterText.value='group | city | name | note | Google Maps search text\n'+serializeMasterLocations();masterModal.hidden=false;setTimeout(()=>masterText.focus(),0)}
+document.querySelector('#editMaster').onclick=()=>{const pin=prompt('Enter 4 digit PIN');if(pin===null)return;if(pin==='2026')openMasterEditor();else status.textContent='Incorrect PIN.'};
+document.querySelector('#masterSave').onclick=()=>{try{const rows=parseMasterLocations(masterText.value);replaceMasterLocations(rows);localStorage.setItem(masterStorageKey,JSON.stringify(rows));chosenOrigin=null;origin.value='';chosenDestination=null;destination.value='';document.querySelector('#placeCard').hidden=true;document.querySelectorAll('.suggestions').forEach(x=>x.hidden=true);closeMasterEditor();status.textContent='Master location list saved.'}catch(e){status.textContent=e.message;masterText.focus()}};
+document.querySelector('#masterCancel').onclick=closeMasterEditor;
+document.querySelector('#masterClose').onclick=closeMasterEditor;
+masterModal.addEventListener('click',e=>{if(e.target===masterModal)closeMasterEditor()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!masterModal.hidden)closeMasterEditor()});
 function resetForDate(){if(document.activeElement && document.activeElement.blur)document.activeElement.blur();closeDayList();chosenOrigin=isUtilityMode()?{current:true,name:'📍 Current Location',zh:'使用手機目前位置',city:'GPS'}:null;origin.value=chosenOrigin?chosenOrigin.name:'';chosenDestination=null;destination.value='';showAllOrigins=false;showAllDestinations=false;document.querySelector('#originAll').setAttribute('aria-pressed','false');document.querySelector('#destinationAll').setAttribute('aria-pressed','false');document.querySelector('#placeCard').hidden=true;document.querySelectorAll('.suggestions').forEach(x=>x.hidden=true);origin.setAttribute('aria-expanded','false');destination.setAttribute('aria-expanded','false');status.textContent=isUtilityMode()?'Utility selected. Choose a nearby service category.':'Origin and destination cleared for the new date.';document.querySelector('#destinationHint').textContent=isUtilityMode()?'Utility categories near your origin':'Places for '+currentLocation();destination.placeholder=isUtilityMode()?'Search utility categories':'Search places for this date';requestAnimationFrame(()=>document.querySelector('#dateControl').scrollIntoView({behavior:'smooth',block:'start'}));}
 document.querySelectorAll('.trip-tile').forEach(tile=>tile.addEventListener('click',()=>selectDay(Number(tile.dataset.day))));
 document.querySelector('#swap').onclick=()=>{if(isUtilityMode()){status.textContent='Utility uses an origin plus a service category.';return}if(!chosenDestination){status.textContent='Choose a destination first, then swap.';return} const oldOrigin=chosenOrigin; chooseOrigin(chosenDestination); if(oldOrigin && !oldOrigin.current) chooseDestination(oldOrigin); else {chosenDestination=null;destination.value='';document.querySelector('#placeCard').hidden=true;} status.textContent='Origin and destination swapped.'};

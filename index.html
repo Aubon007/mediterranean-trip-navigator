@@ -125,7 +125,8 @@ const days=[
  ['2026-09-11','Sep 11, 2026','Rome, Italy','rome'],['2026-09-12','Sep 12, 2026','Amalfi Coast, Italy','rome12'],['2026-09-13','Sep 13, 2026','Rome / Civitavecchia, Italy','rome'],['2026-09-15','Sep 15, 2026','Santorini, Greece','santorini'],['2026-09-16','Sep 16, 2026','Ephesus / Kusadasi, Turkey','ephesus'],['2026-09-17','Sep 17, 2026','Mykonos, Greece','mykonos'],['2026-09-19','Sep 19, 2026','Naples / Pompeii, Italy','naples'],['2026-09-20','Sep 20, 2026','Rome, Italy','rome'],['2026-09-21','Sep 21, 2026','Rome / FCO Airport, Italy','rome']];
 const data=[]; let uid=0; const add=(group,city,rows)=>rows.forEach(([name,zh,query])=>data.push({id:++uid,group,city,name,zh,query:query||name+', '+city}));
 const utilityCategories=[
- {utility:true,name:'🚻 Restroom / Public Toilet',zh:'Nearby toilets and restrooms',city:'Utility',query:'public restroom'},
+ {utility:true,name:'🚻 Restroom / Public Toilet  ',zh:'Nearby toilets and restrooms',city:'Utility',query:'public restroom'}, {utility:true,name:'📮 Post Office',zh:'Nearby post offices',city:'Utility',query:'post office'},
+
  {utility:true,name:'💊 Pharmacy',zh:'Nearby pharmacies',city:'Utility',query:'pharmacy'},
  {utility:true,name:'🏧 ATM',zh:'Nearby cash machines',city:'Utility',query:'ATM'},
  {utility:true,name:'🍽 Restaurant',zh:'Nearby restaurants',city:'Utility',query:'restaurant'},
